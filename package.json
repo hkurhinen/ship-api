@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/hkurhinen/ship-api/issues"
   },
-  "homepage": "https://github.com/hkurhinen/ship-api#readme"
+  "homepage": "https://github.com/hkurhinen/ship-api#readme",
+  "dependencies": {
+    "elasticsearch": "^11.0.1",
+    "express": "^4.13.4",
+    "mongoosastic": "^4.0.2",
+    "mongoose": "^4.4.20"
+  }
 }
