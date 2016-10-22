@@ -1,0 +1,356 @@
+swagger: '2.0'
+info:
+  title: Ship API
+  description: Api to search ship data and images
+  version: "0.0.1"
+host: demo.laiva-api.fi
+schemes:
+  - https
+basePath: /v1
+consumes:
+  - application/json;charset=utf-8
+produces:
+  - application/json;charset=utf-8
+paths:
+  /ships:
+    get:
+      operationId: listShips
+      summary: List ships
+      description: List ships
+      parameters:
+        - name: q
+          in: query
+          description: filter results by free text search
+          type: string
+      tags:
+        - Ships
+      responses:
+        200:
+          description: An array of ships
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ship'
+        400:
+          description: Invalid request was sent to the server
+          schema:
+            $ref: '#/definitions/BadRequest'
+        403:
+          description: Attempted to make a call with unauthorized client
+          schema:
+            $ref: '#/definitions/Forbidden'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/InternalServerError'
+  /ships/{shipId}:
+    get:
+      operationId: findShip
+      summary: Find ship
+      description: Find ship
+      parameters:
+        - name: shipId
+          in: path
+          description: ship id
+          type: string
+          required: true
+      tags:
+        - Ships
+      responses:
+        200:
+          description: Returns a ship
+          schema:
+            $ref: '#/definitions/Ship'      
+        400:
+          description: Invalid request was sent to the server
+          schema:
+            $ref: '#/definitions/BadRequest'
+        403:
+          description: Attempted to make a call with unauthorized client
+          schema:
+            $ref: '#/definitions/Forbidden'
+        404:
+          description: Ship with specified ID was not found
+          schema:
+            $ref: '#/definitions/NotFound'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/InternalServerError'
+  /attachments:
+    get:
+      operationId: listAttachments
+      summary: List attachments
+      description: List attachments
+      tags:
+        - Attachments
+      responses:
+        200:
+          description: An array of attachments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Attachment'
+        400:
+          description: Invalid request was sent to the server
+          schema:
+            $ref: '#/definitions/BadRequest'
+        403:
+          description: Attempted to make a call with unauthorized client
+          schema:
+            $ref: '#/definitions/Forbidden'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/InternalServerError'
+  /attachments/{attachmentId}:
+    get:
+      operationId: findAttachment
+      summary: Find attachment
+      description: Find attachment
+      parameters:
+        - name: attachmentId
+          in: path
+          description: attachment id
+          type: string
+          required: true
+      tags:
+        - Attachments
+      responses:
+        200:
+          description: Returns a attachment
+          schema:
+            $ref: '#/definitions/Attachment'      
+        400:
+          description: Invalid request was sent to the server
+          schema:
+            $ref: '#/definitions/BadRequest'
+        403:
+          description: Attempted to make a call with unauthorized client
+          schema:
+            $ref: '#/definitions/Forbidden'
+        404:
+          description: Attachment with specified ID was not found
+          schema:
+            $ref: '#/definitions/NotFound'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/InternalServerError'
+  /attachments/{attachmentId}/data:
+    get:
+      produces:
+        - application/octet-stream
+      operationId: getAttachmentData
+      summary: Returns an attachment data
+      description: |
+        Returns an attachment data
+      parameters:
+        - name: attachmentId
+          in: path
+          description: Attachment id
+          required: true
+          type: string
+          format: uuid
+      tags:
+        - Attachments
+      responses:
+        200:
+          description: Returns an attachment data
+          schema:
+            type: string
+            format: binary
+        400:
+          description: Invalid request was sent to the server
+          schema:
+            $ref: '#/definitions/BadRequest'
+        403:
+          description: Attempted to make a call with unauthorized client
+          schema:
+            $ref: '#/definitions/Forbidden'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/InternalServerError'
+definitions:
+  Attachment:
+    properties:
+      id:
+        type: string
+        format: uuid
+      contentType:
+        type: string
+      size:
+        type: integer
+        format: int64
+  Ship:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Unique identifier a organization.
+      generalInformation:
+        type: object
+        properties:
+          buildNumber:
+            type: integer
+            format: int32
+          buildYear:
+            type: integer
+            format: int32
+          name:
+            type: string
+          type:
+            type: string
+          drawingNumber:
+            type: integer
+            format: int32
+          shipowners:
+            type: string
+      frame:
+        type: object
+        properties:
+          orderNumber:
+            type: integer
+            format: int32
+          drawingNumber:
+            type: integer
+            format: int32
+          length:
+            type: string
+          beam:
+            type: string
+          draft:
+            type: string
+          mainArcArea:
+            type: string
+          waterlineArea:
+            type: string
+          plannedDraft:
+            type: string
+          modeledDraft:
+            type: string
+          material:
+            type: string
+          weight:
+            type: string
+      boiler:
+        type: object
+        properties:
+          orderNumber:
+            type: integer
+            format: int32
+          drawingNumber:
+            type: integer
+            format: int32
+          type:
+            type: string
+          size:
+            type: string
+          heatingSurface:
+            type: string
+          grateSurface:
+            type: string
+          workPressure:
+            type: string
+          weight:
+            type: string
+      engine:
+        type: object
+        properties:
+          orderNumber:
+            type: integer
+            format: int32
+          drawingNumber:
+            type: integer
+            format: int32
+          type:
+            type: string
+          size:
+            type: string
+          cylinderDiameter:
+            type: string     
+          stroke:
+            type: string
+          cylinderFillRate:
+            type: string
+          vacuum:
+            type: string
+          steamPressure:
+            type: string
+          RPM:
+            type: string
+          indicatedPower:
+            type: string
+      propeller:
+        type: object
+        properties:
+          diameter:
+            type: string
+          pitch:
+            type: string
+          bladeArea:
+            type: string
+          bladeCount:
+            type: integer
+            format: int32
+      seaTrial:
+        type: object
+        properties:
+          averageSpeed:
+            type: string
+          knotsPerHour:
+            type: string
+          verstsPerHour:
+            type: string
+          date:
+            type: string
+      additionalInformation:
+        type: array
+        items: 
+          type: string
+      attachments:
+        type: array
+        items:
+          $ref: '#/definitions/ShipAttachment'
+  ShipAttachment:
+    type: object
+    properties:
+      attachmentId:
+        format: uuid
+        type: string
+      attachmentName:
+        type: string
+  InternalServerError:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+  Forbidden:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+  BadRequest:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+  NotFound:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string

@@ -13,18 +13,11 @@ var app = express();
 app.set('port', config.port);
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/get/:id', function(req, res){
-  var _id = req.params.id;
-  Ship.findById(_id, function(err, ship){
-    if(err){
-      res.status(400).send(err);
-    }else{
-      res.send(ship);
-    }
-  });
+app.get(config.basePath, function(req, res) {
+  res.sendFile(path.join(__dirname, 'ship-api.json'));
 });
 
-app.get('/list', function(req, res){
+app.get(config.basePath+'/ships', function(req, res){
   Ship.find({}, function(err, ships){
     if(err){
       res.status(400).send(err);
@@ -34,19 +27,27 @@ app.get('/list', function(req, res){
   });
 });
 
-app.get('/search', function(req, res){
-  var q = req.query.q;
-  Ship.search({
-    query_string: {
-      query: q
-    }
-  }, function(err, results) {
+app.get(config.basePath+'/ships/:shipId', function(req, res){
+  var _id = req.params.shipId;
+  Ship.findById(_id, function(err, ship){
     if(err){
       res.status(400).send(err);
     }else{
-      res.send(results);
+      res.send(ship);
     }
   });
+});
+
+app.get(config.basePath+'/attachments', function(req, res){
+  res.status(501).send('NOT IMPLEMENTED');
+});
+
+app.get(config.basePath+'/attachments/:attachmentId', function(req, res){
+  res.status(501).send('NOT IMPLEMENTED');
+});
+
+app.get(config.basePath+'/attachments/:attachmentId/data', function(req, res){
+  res.status(501).send('NOT IMPLEMENTED');
 });
 
 http.createServer(app).listen(app.get('port'), function() {
