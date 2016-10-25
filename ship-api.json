@@ -5,7 +5,7 @@
         "description": "Api to search ship data and images",
         "version": "0.0.1"
     },
-    "host": "demo.laiva-api.fi",
+    "host": "api.laiva-api.pw",
     "schemes": [
         "https"
     ],
