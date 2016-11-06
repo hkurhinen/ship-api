@@ -115,55 +115,19 @@
                 }
             }
         },
-        "/attachments": {
+        "/attachments/{filename}": {
             "get": {
-                "operationId": "listAttachments",
-                "summary": "List attachments",
-                "description": "List attachments",
-                "tags": [
-                    "Attachments"
+                "produces": [
+                    "application/octet-stream"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "An array of attachments",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Attachment"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request was sent to the server",
-                        "schema": {
-                            "$ref": "#/definitions/BadRequest"
-                        }
-                    },
-                    "403": {
-                        "description": "Attempted to make a call with unauthorized client",
-                        "schema": {
-                            "$ref": "#/definitions/Forbidden"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/InternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/attachments/{attachmentId}": {
-            "get": {
                 "operationId": "findAttachment",
                 "summary": "Find attachment",
                 "description": "Find attachment",
                 "parameters": [
                     {
-                        "name": "attachmentId",
+                        "name": "filename",
                         "in": "path",
-                        "description": "attachment id",
+                        "description": "attachment filename",
                         "type": "string",
                         "required": true
                     }
@@ -173,9 +137,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns a attachment",
+                        "description": "Returns an attachment data",
                         "schema": {
-                            "$ref": "#/definitions/Attachment"
+                            "type": "string",
+                            "format": "binary"
                         }
                     },
                     "400": {
@@ -204,74 +169,9 @@
                     }
                 }
             }
-        },
-        "/attachments/{attachmentId}/data": {
-            "get": {
-                "produces": [
-                    "application/octet-stream"
-                ],
-                "operationId": "getAttachmentData",
-                "summary": "Returns an attachment data",
-                "description": "Returns an attachment data\n",
-                "parameters": [
-                    {
-                        "name": "attachmentId",
-                        "in": "path",
-                        "description": "Attachment id",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid"
-                    }
-                ],
-                "tags": [
-                    "Attachments"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Returns an attachment data",
-                        "schema": {
-                            "type": "string",
-                            "format": "binary"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request was sent to the server",
-                        "schema": {
-                            "$ref": "#/definitions/BadRequest"
-                        }
-                    },
-                    "403": {
-                        "description": "Attempted to make a call with unauthorized client",
-                        "schema": {
-                            "$ref": "#/definitions/Forbidden"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/InternalServerError"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "Attachment": {
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "format": "uuid"
-                },
-                "contentType": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "integer",
-                    "format": "int64"
-                }
-            }
-        },
         "Ship": {
             "type": "object",
             "properties": {
@@ -284,8 +184,7 @@
                     "type": "object",
                     "properties": {
                         "buildNumber": {
-                            "type": "integer",
-                            "format": "int32"
+                            "type": "string"
                         },
                         "buildYear": {
                             "type": "integer",
@@ -301,7 +200,7 @@
                             "type": "integer",
                             "format": "int32"
                         },
-                        "shipowners": {
+                        "shipyard": {
                             "type": "string"
                         }
                     }
@@ -461,19 +360,17 @@
                 "attachments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ShipAttachment"
+                        "$ref": "#/definitions/Attachment"
                     }
                 }
             }
         },
-        "ShipAttachment": {
-            "type": "object",
+        "Attachment": {
             "properties": {
-                "attachmentId": {
-                    "format": "uuid",
+                "displayName": {
                     "type": "string"
                 },
-                "attachmentName": {
+                "fileName": {
                     "type": "string"
                 }
             }
