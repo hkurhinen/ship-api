@@ -24,6 +24,7 @@
     "elasticsearch": "^11.0.1",
     "express": "^4.13.4",
     "mongoosastic": "^4.0.2",
-    "mongoose": "^4.4.20"
+    "mongoose": "^4.4.20",
+    "xlsx": "^0.8.0"
   }
 }
