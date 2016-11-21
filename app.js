@@ -254,13 +254,24 @@ app.get(config.basePath, function (req, res) {
 
 app.get(config.basePath + '/ships', function (req, res) {
   var query = '*';
+  var from = 0;
+  var size = 10;
   if (req.query.q) {
-    query = req.query.q;
+    query = req.query['q'];
+  }
+  if (req.query['size']) {
+    size = parseInt(req.query['size'], 10);
+  }
+  if (req.query['from']) {
+    from = parseInt(req.query['from'], 10);
   }
   Ship.search({
     query_string: {
       query: query
     }
+  }, {
+    from: from,
+    size: size
   }, function (err, results) {
     if (err) {
       res.status(400).send(err);
