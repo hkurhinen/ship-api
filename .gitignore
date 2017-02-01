@@ -3,3 +3,4 @@ config.js
 .settings
 public/attachments
 attachmentLists
+data
