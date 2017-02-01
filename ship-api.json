@@ -3,9 +3,9 @@
     "info": {
         "title": "Ship API",
         "description": "Api to search ship data and images",
-        "version": "0.0.1"
+        "version": "0.1.2"
     },
-    "host": "api.laiva-api.pw",
+    "host": "api.laivadata.fi",
     "schemes": [
         "https"
     ],
@@ -27,6 +27,18 @@
                         "name": "q",
                         "in": "query",
                         "description": "filter results by free text search",
+                        "type": "string"
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "start from this",
+                        "type": "string"
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "number of results",
                         "type": "string"
                     }
                 ],
@@ -115,19 +127,117 @@
                 }
             }
         },
-        "/attachments/{filename}": {
+        "/attachments": {
+            "get": {
+                "operationId": "listAttachments",
+                "summary": "List attachments",
+                "description": "List attachments",
+                "parameters": [
+                    {
+                        "name": "buildnumber",
+                        "in": "query",
+                        "description": "filter results by buildnumber",
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of attachments",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Attachment"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request was sent to the server",
+                        "schema": {
+                            "$ref": "#/definitions/BadRequest"
+                        }
+                    },
+                    "403": {
+                        "description": "Attempted to make a call with unauthorized client",
+                        "schema": {
+                            "$ref": "#/definitions/Forbidden"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/attachments/{attachmentId}": {
+            "get": {
+                "operationId": "findAttachment",
+                "summary": "find attachment",
+                "description": "find attachments",
+                "parameters": [
+                    {
+                        "name": "attachmentId",
+                        "in": "path",
+                        "description": "attachments id",
+                        "type": "string",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Single attachment",
+                        "schema": {
+                            "$ref": "#/definitions/Attachment"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request was sent to the server",
+                        "schema": {
+                            "$ref": "#/definitions/BadRequest"
+                        }
+                    },
+                    "403": {
+                        "description": "Attempted to make a call with unauthorized client",
+                        "schema": {
+                            "$ref": "#/definitions/Forbidden"
+                        }
+                    },
+                    "404": {
+                        "description": "Attachment with specified ID was not found",
+                        "schema": {
+                            "$ref": "#/definitions/NotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/attachments/{attachmentId}/data": {
             "get": {
                 "produces": [
                     "application/octet-stream"
                 ],
-                "operationId": "findAttachment",
-                "summary": "Find attachment",
-                "description": "Find attachment",
+                "operationId": "findAttachmentData",
+                "summary": "Find attachmentData",
+                "description": "Find attachmentData",
                 "parameters": [
                     {
-                        "name": "filename",
+                        "name": "attachmentId",
                         "in": "path",
-                        "description": "attachment filename",
+                        "description": "attachment id",
                         "type": "string",
                         "required": true
                     }
@@ -175,202 +285,68 @@
         "Ship": {
             "type": "object",
             "properties": {
-                "id": {
+                "_id": {
                     "type": "string",
                     "format": "uuid",
-                    "description": "Unique identifier a organization."
+                    "description": "Unique identifier for a ship"
                 },
-                "generalInformation": {
-                    "type": "object",
-                    "properties": {
-                        "buildNumber": {
-                            "type": "string"
-                        },
-                        "buildYear": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "drawingNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "shipyard": {
-                            "type": "string"
-                        }
-                    }
+                "buildnumber": {
+                    "type": "integer",
+                    "format": "int32"
                 },
-                "frame": {
-                    "type": "object",
-                    "properties": {
-                        "orderNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "drawingNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "length": {
-                            "type": "string"
-                        },
-                        "beam": {
-                            "type": "string"
-                        },
-                        "draft": {
-                            "type": "string"
-                        },
-                        "mainArcArea": {
-                            "type": "string"
-                        },
-                        "waterlineArea": {
-                            "type": "string"
-                        },
-                        "plannedDraft": {
-                            "type": "string"
-                        },
-                        "modeledDraft": {
-                            "type": "string"
-                        },
-                        "material": {
-                            "type": "string"
-                        },
-                        "weight": {
-                            "type": "string"
-                        }
-                    }
+                "name": {
+                    "type": "string"
                 },
-                "boiler": {
-                    "type": "object",
-                    "properties": {
-                        "orderNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "drawingNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "size": {
-                            "type": "string"
-                        },
-                        "heatingSurface": {
-                            "type": "string"
-                        },
-                        "grateSurface": {
-                            "type": "string"
-                        },
-                        "workPressure": {
-                            "type": "string"
-                        },
-                        "weight": {
-                            "type": "string"
-                        }
-                    }
+                "type_translated": {
+                    "type": "string"
                 },
-                "engine": {
-                    "type": "object",
-                    "properties": {
-                        "orderNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "drawingNumber": {
-                            "type": "integer",
-                            "format": "int32"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "size": {
-                            "type": "string"
-                        },
-                        "cylinderDiameter": {
-                            "type": "string"
-                        },
-                        "stroke": {
-                            "type": "string"
-                        },
-                        "cylinderFillRate": {
-                            "type": "string"
-                        },
-                        "vacuum": {
-                            "type": "string"
-                        },
-                        "steamPressure": {
-                            "type": "string"
-                        },
-                        "RPM": {
-                            "type": "string"
-                        },
-                        "indicatedPower": {
-                            "type": "string"
-                        }
-                    }
+                "type": {
+                    "type": "string"
                 },
-                "propeller": {
-                    "type": "object",
-                    "properties": {
-                        "diameter": {
-                            "type": "string"
-                        },
-                        "pitch": {
-                            "type": "string"
-                        },
-                        "bladeArea": {
-                            "type": "string"
-                        },
-                        "bladeCount": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    }
+                "type_info": {
+                    "type": "string"
                 },
-                "seaTrial": {
-                    "type": "object",
-                    "properties": {
-                        "averageSpeed": {
-                            "type": "string"
-                        },
-                        "knotsPerHour": {
-                            "type": "string"
-                        },
-                        "verstsPerHour": {
-                            "type": "string"
-                        },
-                        "date": {
-                            "type": "string"
-                        }
-                    }
+                "buildyear": {
+                    "type": "string"
                 },
-                "additionalInformation": {
+                "properties": {
                     "type": "array",
                     "items": {
-                        "type": "string"
-                    }
-                },
-                "attachments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Attachment"
+                        "$ref": "#/definitions/ShipProperty"
                     }
                 }
             }
         },
         "Attachment": {
             "properties": {
-                "displayName": {
+                "buildnumber": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "type": {
                     "type": "string"
                 },
-                "fileName": {
+                "url": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "contenttype": {
+                    "type": "string"
+                },
+                "attachmentdata": {
+                    "type": "string"
+                }
+            }
+        },
+        "ShipProperty": {
+            "type": "object",
+            "properties": {
+                "property": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
