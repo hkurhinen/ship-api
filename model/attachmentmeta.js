@@ -11,6 +11,7 @@
     url: { type: String },
     filename: { type: String },
     contenttype: { type: String },
+    originalid: { type: String },
     attachmentdata: { type: mongoose.Schema.Types.ObjectId }
   });
 

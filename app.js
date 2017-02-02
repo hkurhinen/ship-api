@@ -12,6 +12,7 @@
   const bodyParser = require('body-parser')
   const Promise = require('bluebird');
   const multer = require('multer');
+  const AttachmentScheduler = require('./schedulers');
 
   process.on('unhandledRejection', function (error, promise) {
     console.error('UNHANDLED REJECTION', error.stack);
@@ -32,6 +33,8 @@
       next();
     };
   };
+
+  var attachmentScheduler = new AttachmentScheduler('25 0 * * *');
 
   var app = express();
 
