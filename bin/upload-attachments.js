@@ -15,6 +15,7 @@
     { name: 'sheet', alias: 's', type: String },
     { name: 'path', alias: 'p', type: String },
     { name: 'url', alias: 'u', type: String },
+    { name: 'jump', alias: 'j', type: String },
     { name: 'extension', alias: 'e', type: String }
   ];
 
@@ -31,22 +32,31 @@
 
   function uploadAttachments(attachments) {
     var bar = new ProgressBar('uploading files [:bar] :current / :total', { total: attachments.length });
+    var count = 0;
     async.eachSeries(attachments, (attachment, callback) => {
-      var formData = {
-        buildnumber: attachment.buildnumber,
-        file: {
-          value: fs.createReadStream(attachment.filename),
-          options: {
-            filename: attachment.originalname,
+      if (options.jump && count < options.jump) {
+        setTimeout(() => {
+          count++;
+          bar.tick();
+          callback();
+        }, 10);
+      } else {
+        var formData = {
+          buildnumber: attachment.buildnumber,
+          file: {
+            value: fs.createReadStream(attachment.filename),
+            options: {
+              filename: attachment.originalname,
+            }
           }
-        }
-      };
-      request.post({ url: options.url, formData: formData }, (err, httpResponse, body) => {
-        bar.tick();
-        callback(err);
-      });
+        };
+        request.post({ url: options.url, formData: formData }, (err, httpResponse, body) => {
+          bar.tick();
+          callback(err);
+        });
+      }
     }, (err) => {
-      if(err) {
+      if (err) {
         console.log('File upload failed', err);
         process.exit(1);
       } else {
