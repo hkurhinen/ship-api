@@ -34,7 +34,7 @@
     };
   };
 
-  var attachmentScheduler = new AttachmentScheduler('25 0 * * *');
+  var attachmentScheduler = new AttachmentScheduler('30 0 * * *');
 
   var app = express();
 
