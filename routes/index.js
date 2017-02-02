@@ -100,8 +100,11 @@
             res.set('Content-Type', attachmentMeta.contenttype);
             AttachmentData.readById(attachmentMeta.attachmentdata).pipe(res);
           } else {
-            res.set('Content-Type', attachmentMeta.contenttype);
-            request(attachmentMeta.url).pipe(res);
+            request
+              .get(attachmentMeta.url)
+              .on('response', function (response) {
+                response.headers['content-type'] = attachmentMeta.contenttype;
+              }).pipe(res);
           }
         }
       }
@@ -128,7 +131,7 @@
     attachmentMeta.buildnumber = parseInt(req.file.buildnumber, 10);
     attachmentMeta.attachmentdata = req.file.id;
     attachmentMeta.save((err, attachmentMeta) => {
-      if(err) {
+      if (err) {
         res.status(500).send(err);
       } else {
         res.send(attachmentMeta);
