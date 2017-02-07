@@ -32,7 +32,10 @@
       }
     }, {
         from: from,
-        size: size
+        size: size,
+        sort: [
+          { buildnumber: { order: 'asc', missing: '_first' } }
+        ]
       }, (err, results) => {
         if (err) {
           res.status(500).send(err);
