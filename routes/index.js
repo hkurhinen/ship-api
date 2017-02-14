@@ -34,7 +34,7 @@
         from: from,
         size: size,
         sort: [
-          { buildnumber: { order: 'asc', missing: '_first' } }
+          { buildnumber: { order: 'asc', missing: '_last' } }
         ]
       }, (err, results) => {
         if (err) {
