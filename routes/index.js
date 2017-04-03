@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+/* global __dirname */
+
 (function () {
   'use strict';
 
@@ -72,7 +74,7 @@
       } else {
         res.send(attachmentMetas);
       }
-    })
+    });
   };
 
   exports.findAttachment = (req, res) => {
@@ -121,7 +123,7 @@
       if (err) {
         res.status(500).send();
       } else {
-        res.send(savedShip)
+        res.send(savedShip);
       }
     });
   };

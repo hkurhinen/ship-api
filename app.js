@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+/* global __dirname */
+
 (function () {
   'use strict';
 
@@ -8,11 +10,11 @@
   const mongoose = require('mongoose');
   const config = require('./config');
   const util = require('util');
-  const passport = require('passport');
-  const bodyParser = require('body-parser')
+  const bodyParser = require('body-parser');
   const Promise = require('bluebird');
   const multer = require('multer');
   const AttachmentScheduler = require('./schedulers');
+  const auth = require(__dirname + '/auth');
 
   process.on('unhandledRejection', function (error, promise) {
     console.error('UNHANDLED REJECTION', error.stack);
@@ -61,8 +63,8 @@
   app.get(util.format('%s/attachments/:id', config.basePath), routes.findAttachment);
   app.get(util.format('%s/attachments/:id/data', config.basePath), routes.getAttachmentData);
 
-  //app.post('/upload/ship', routes.uploadShip);
-  //app.post('/upload/attachment', extendTimeout(1000 * 60 * 60), fileParser.single('file'), routes.uploadAttachment);
+  app.post('/upload/ship', auth, routes.uploadShip);    
+  app.post('/upload/attachment', auth, extendTimeout(1000 * 60 * 60), fileParser.single('file'), routes.uploadAttachment);
 
   http.createServer(app).listen(app.get('port'), function () {
     console.log('Ship-api listening on port ' + app.get('port'));

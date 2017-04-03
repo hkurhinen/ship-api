@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+/* global __dirname */
+
 (function () {
   'use strict';
 
@@ -14,15 +16,18 @@
     return null;
   };
 
-  module.exports = (passport) => {
-    passport.use(new LocalAPIKeyStrategy((apikey, done) => {
+  module.exports = (req, res, next) => {
+    var apikey = req.header('apikey');
+    if (!apikey) {
+      res.status(401).send('Go away!');
+    } else {
       var user = findUserByAPIKey(apikey);
       if (!user) {
-        return done(null, false);
+        res.status(401).send('Go away!');
       } else {
-        return done(null, user);
-      }
-    }));
+        next();
+      } 
+    }
   };
 
 })();
