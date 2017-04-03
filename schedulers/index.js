@@ -2,7 +2,6 @@
 (function () {
   'use strict';
 
-  const config = require(__dirname + '/../config');
   const async = require('async');
   const request = require('request');
   const util = require('util');

@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+/* global __dirname */
+
 (function () {
   'use strict';
 
@@ -9,7 +11,7 @@
   GridFSStorage.prototype._handleFile = (req, file, cb) => {
     AttachmentData.write({ filename: file.originalname, contentType: file.mimetype }, file.stream, (error, createdFile) => {
       if (error) {
-        cb(err);
+        cb(error);
       } else {
         cb(null, {
           id: createdFile._id,

@@ -1,6 +1,6 @@
 nbproject
 node_modules
-config.js
+config.json
 .settings
 public/attachments
 attachmentLists

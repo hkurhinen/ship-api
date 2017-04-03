@@ -6,7 +6,7 @@
   const mongoose = require('mongoose');
   const mongoosastic = require('mongoosastic');
   const Schema = mongoose.Schema;
-  const config = require(__dirname + '/../config.js');
+  const config = require('nconf');
 
   var schema = new Schema({
     buildnumber: { type: Number },
@@ -22,7 +22,7 @@
   });
 
   schema.plugin(mongoosastic, {
-    hosts: config.elasticsearch.hosts
+    hosts: config.get('elasticsearch:hosts')
   });
   
  module.exports = mongoose.model('Ship', schema);

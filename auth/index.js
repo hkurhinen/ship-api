@@ -4,12 +4,13 @@
 (function () {
   'use strict';
 
-  const config = require(__dirname + '/../config.js');
+  const config = require('nconf');
 
   function findUserByAPIKey(apikey) {
-    for (let i = 0; i < config.admins.length; i++) {
-      if (config.admins[i].apikey === apikey) {
-        return config.admins[i];
+    var admins = config.get('admins');
+    for (let i = 0; i < admins.length; i++) {
+      if (admins[i].apikey === apikey) {
+        return admins[i];
       }
     }
 

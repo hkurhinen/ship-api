@@ -7,21 +7,32 @@
   const express = require('express');
   const http = require('http');
   const path = require('path');
+  const commandLineArgs = require('command-line-args');
+  
+  const optionDefinitions = [
+    { name: 'config', alias: 'c', type: String },
+    { name: 'port', alias: 'p', type: Number }
+  ];
+  const options = commandLineArgs(optionDefinitions);
+  
+  const config = require('nconf');
+  config.file({ file: options.config || 'config.json' });
+  
   const mongoose = require('mongoose');
-  const config = require('./config');
   const util = require('util');
   const bodyParser = require('body-parser');
   const Promise = require('bluebird');
   const multer = require('multer');
   const AttachmentScheduler = require('./schedulers');
   const auth = require(__dirname + '/auth');
+  const basePath = config.get('basePath');
 
   process.on('unhandledRejection', function (error, promise) {
     console.error('UNHANDLED REJECTION', error.stack);
   });
 
   mongoose.Promise = Promise;
-  mongoose.connect(util.format('mongodb://%s/%s', config.database.host, config.database.table));
+  mongoose.connect(util.format('mongodb://%s/%s', config.get('database:host'), config.get('database:table')));
 
   const gridFSStorage = require(__dirname + '/storage/gridFSStorage.js');
   const fileParser = multer({ storage: gridFSStorage() });
@@ -49,19 +60,19 @@
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 
-  app.set('port', config.port);
+  app.set('port', options.port || 3000);
   app.use(express.static(path.join(__dirname, 'public')));
 
   const routes = require(__dirname + '/routes');
 
-  app.get(config.basePath, routes.index);
+  app.get(basePath, routes.index);
 
-  app.get(util.format('%s/ships', config.basePath), routes.listShips);
-  app.get(util.format('%s/ships/:id', config.basePath), routes.findShip);
+  app.get(util.format('%s/ships', basePath), routes.listShips);
+  app.get(util.format('%s/ships/:id', basePath), routes.findShip);
 
-  app.get(util.format('%s/attachments', config.basePath), routes.listAttachments);
-  app.get(util.format('%s/attachments/:id', config.basePath), routes.findAttachment);
-  app.get(util.format('%s/attachments/:id/data', config.basePath), routes.getAttachmentData);
+  app.get(util.format('%s/attachments', basePath), routes.listAttachments);
+  app.get(util.format('%s/attachments/:id', basePath), routes.findAttachment);
+  app.get(util.format('%s/attachments/:id/data', basePath), routes.getAttachmentData);
 
   app.post('/upload/ship', auth, routes.uploadShip);    
   app.post('/upload/attachment', auth, extendTimeout(1000 * 60 * 60), fileParser.single('file'), routes.uploadAttachment);
