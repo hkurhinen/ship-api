@@ -1,20 +1,30 @@
-var mongoose = require('mongoose');
-var mongoosastic = require('mongoosastic');
-var Schema = mongoose.Schema;
+/*jshint esversion: 6 */
+/* global __dirname */
 
-var schema = new Schema({
-  buildnumber: { type: Number },
-  name: { type: String },
-  type_translated: { type: String },
-  type: { type: String },
-  type_info: { type: String },
-  buildyear: { type: String },
-  properties: [{
-    property: { type: String },
-    value: { type: String }
-  }]
-});
+(function() {
+  'use strict';
+  const mongoose = require('mongoose');
+  const mongoosastic = require('mongoosastic');
+  const Schema = mongoose.Schema;
+  const config = require(__dirname + '/../config.js');
 
-schema.plugin(mongoosastic)
+  var schema = new Schema({
+    buildnumber: { type: Number },
+    name: { type: String },
+    type_translated: { type: String },
+    type: { type: String },
+    type_info: { type: String },
+    buildyear: { type: String },
+    properties: [{
+      property: { type: String },
+      value: { type: String }
+    }]
+  });
 
-module.exports = mongoose.model('Ship', schema);
+  schema.plugin(mongoosastic, {
+    hosts: config.elasticsearch.hosts
+  });
+  
+ module.exports = mongoose.model('Ship', schema);
+
+})();
