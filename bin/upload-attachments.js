@@ -9,6 +9,7 @@
   const XLSX = require('xlsx');
   const util = require('util');
   const fs = require('fs');
+  const RETRY_COUNT = 10;
 
   const optionDefinitions = [
     { name: 'names', alias: 'n', type: Boolean },
@@ -16,7 +17,8 @@
     { name: 'path', alias: 'p', type: String },
     { name: 'url', alias: 'u', type: String },
     { name: 'jump', alias: 'j', type: String },
-    { name: 'extension', alias: 'e', type: String }
+    { name: 'extension', alias: 'e', type: String },
+    { name: 'apikey', alias: 'k', type: String }
   ];
 
   const options = commandLineArgs(optionDefinitions);
@@ -50,10 +52,44 @@
             }
           }
         };
-        request.post({ url: options.url, formData: formData }, (err, httpResponse, body) => {
-          bar.tick();
-          callback(err);
-        });
+        var success = false;
+        var retries = 0;
+        async.whilst(
+          () => { 
+            if (success) {
+              return false;
+            } else {
+              return retries < RETRY_COUNT;
+            }
+          },
+          (retryCallback) => {
+            if( retries > 0 ) {
+              console.log('Retry ' + retries + ' / ' + RETRY_COUNT);
+            }
+            retries++;
+            request.post({ 
+                url: options.url,
+                followAllRedirects: true,
+                formData: formData,
+                headers: { 'apikey': options.apikey }
+            }, (err, httpResponse, body) => {
+              if (!err && httpResponse.statusCode === 200) {
+                success = true;
+              }
+
+              var errored = null;
+              
+              if (!success && !(retries < RETRY_COUNT)) {
+                errored = "Upload failed, exiting";
+              }
+              retryCallback(errored);
+            });
+          }, 
+          (retryErr) => {
+            bar.tick();
+            callback(retryErr);
+          }
+        );
       }
     }, (err) => {
       if (err) {

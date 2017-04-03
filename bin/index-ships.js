@@ -1,4 +1,6 @@
 /*jshint esversion: 6 */
+/* global __dirname */
+
 (function () {
   'use strict';
 
@@ -11,7 +13,8 @@
 
   const optionDefinitions = [
     { name: 'input', alias: 'i', type: String },
-    { name: 'url', alias: 'u', type: String }
+    { name: 'url', alias: 'u', type: String },
+    { name: 'apikey', alias: 'k', type: String }
   ];
 
   const options = commandLineArgs(optionDefinitions);
@@ -52,17 +55,23 @@
 
     request({
       uri: options.url,
+      headers: { 'apikey': options.apikey },
+      followAllRedirects: true,
       method: 'POST',
       json: { 'ship': ship }
     }, function (err, response, body) {
-      bar.tick();
-      callback(err);
+      if (!err && response.statusCode === 200) {
+        bar.tick();
+        callback(); 
+      } else {
+        callback(err || 'Request failed with statusCode: '+ response.statusCode);
+      }
     });
 
   }, (err) => {
     if (err) {
       console.error('Error inserting ships', err);
-      process.exit(1)
+      process.exit(1);
     } else {
       console.log('Ships successfully indexed.');
       process.exit();
