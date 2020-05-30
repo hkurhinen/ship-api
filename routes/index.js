@@ -6,10 +6,10 @@
 
   const path = require('path');
   const request = require('request');
-  const async = require('async');
+  const { v4: uuidv4 } = require('uuid');
   const Ship = require(__dirname + '/../model/ship');
   const AttachmentMeta = require(__dirname + '/../model/attachmentmeta');
-  const AttachmentData = require(__dirname + '/../model/attachmentdata');
+  const s3Utils = require(__dirname + '/../utils/s3Utils');
 
   exports.index = (req, res) => {
     res.sendFile(path.join(__dirname, '/../ship-api.json'));
@@ -102,8 +102,7 @@
           res.status(404).send();
         } else {
           if (attachmentMeta.type === 'INTERNAL') {
-            res.set('Content-Type', attachmentMeta.contenttype);
-            AttachmentData.readById(attachmentMeta.attachmentdata).pipe(res);
+            res.status(501).send("Internal attachments are no longer supported");
           } else {
             request
               .get(attachmentMeta.url)
@@ -128,13 +127,13 @@
     });
   };
 
-  exports.uploadAttachment = (req, res) => {
+  exports.uploadAttachment = async (req, res) => {
     var attachmentMeta = new AttachmentMeta();
     attachmentMeta.filename = req.file.originalname;
     attachmentMeta.contenttype = req.file.mimetype;
-    attachmentMeta.type = 'INTERNAL';
-    attachmentMeta.buildnumber = parseInt(req.file.buildnumber, 10);
-    attachmentMeta.attachmentdata = req.file.id;
+    attachmentMeta.type = 'EXTERNAL';
+    attachmentMeta.buildnumber = parseInt(req.body.buildnumber, 10);
+    attachmentMeta.url = await s3Utils.uploadAttachment(req.file.buffer, uuidv4());
     attachmentMeta.save((err, attachmentMeta) => {
       if (err) {
         res.status(500).send(err);

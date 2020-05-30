@@ -15,37 +15,28 @@
   ];
   const options = commandLineArgs(optionDefinitions);
   
-  const config = require('nconf');
-  config.file({ file: options.config || 'config.json' });
-  
   const mongoose = require('mongoose');
   const util = require('util');
   const bodyParser = require('body-parser');
   const Promise = require('bluebird');
   const multer = require('multer');
   const AttachmentScheduler = require('./schedulers');
-  const auth = require(__dirname + '/auth');
-  const basePath = config.get('basePath');
+  const basePath = process.env.API_BASE_PATH || "/v1";
 
   process.on('unhandledRejection', function (error, promise) {
     console.error('UNHANDLED REJECTION', error.stack);
   });
 
-  mongoose.Promise = Promise;
-  mongoose.connect(util.format('mongodb://%s/%s', config.get('database:host'), config.get('database:table')));
-
-  const gridFSStorage = require(__dirname + '/storage/gridFSStorage.js');
-  const fileParser = multer({ storage: gridFSStorage() });
-
-  function extendTimeout(timeout) {
-    return (req, res, next) => {
-      res.setTimeout(timeout, () => {
-        console.log('Request has timed out.');
-        res.send(408);
-      });
-      next();
-    };
+  const dbConfig = {
+    host: process.env.DB_HOST || '127.0.0.1',
+    database: process.env.DB_NAME || 'shipApi',
+    user: process.env.DB_USER,
+    pass: process.env.DB_PASS
   };
+
+  mongoose.Promise = Promise;
+  const dbUrl = `mongodb://${dbConfig.user}:${dbConfig.pass}@${dbConfig.host}/${dbConfig.database}?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority`;
+  mongoose.connect(dbUrl);
 
   var attachmentScheduler = new AttachmentScheduler('30 0 * * *');
 
@@ -73,9 +64,6 @@
   app.get(util.format('%s/attachments', basePath), routes.listAttachments);
   app.get(util.format('%s/attachments/:id', basePath), routes.findAttachment);
   app.get(util.format('%s/attachments/:id/data', basePath), routes.getAttachmentData);
-
-  app.post('/upload/ship', auth, routes.uploadShip);    
-  app.post('/upload/attachment', auth, extendTimeout(1000 * 60 * 60), fileParser.single('file'), routes.uploadAttachment);
 
   http.createServer(app).listen(app.get('port'), function () {
     console.log('Ship-api listening on port ' + app.get('port'));

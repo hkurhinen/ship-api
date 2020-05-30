@@ -3,10 +3,9 @@
   'use strict';
 
   const async = require('async');
-  const request = require('request');
   const util = require('util');
   const http = require('http');
-  const fileType = require('file-type');
+  const FileType = require('file-type');
   const schedule = require('node-schedule');
   const AttachmentMeta = require(__dirname + '/../model/attachmentmeta');
 
@@ -17,9 +16,9 @@
       this.scheduler = schedule.scheduleJob(interval, () => {
         this.discoverAttachments();
       });
-      this.queue.drain = () => {
+      this.queue.drain(() => {
         console.log('Finished processing attachments');
-      };
+      });
     }
 
     discoverAttachments() {
@@ -75,17 +74,20 @@
               http.get(attachmentUrl, res => {
                 res.once('data', chunk => {
                   res.destroy();
-                  var filedata = fileType(chunk);
-                  var attachmentMeta = new AttachmentMeta();
-                  attachmentMeta.filename = attachment.presentation;
-                  attachmentMeta.contenttype = filedata.mime;
-                  attachmentMeta.type = 'EXTERNAL';
-                  attachmentMeta.buildnumber = buildnumber;
-                  attachmentMeta.url = attachmentUrl;
-                  attachmentMeta.originalid = originalId;
-                  attachmentMeta.save((saveErr, attachmentMeta) => {
-                    buildnumberCallback(saveErr);
-                  });
+                  FileType.fromBuffer(chunk)
+                    .then((filedata) => {
+                      var attachmentMeta = new AttachmentMeta();
+                      attachmentMeta.filename = attachment.presentation;
+                      attachmentMeta.contenttype = filedata.mime;
+                      attachmentMeta.type = 'EXTERNAL';
+                      attachmentMeta.buildnumber = buildnumber;
+                      attachmentMeta.url = attachmentUrl;
+                      attachmentMeta.originalid = originalId;
+                      attachmentMeta.save((saveErr, attachmentMeta) => {
+                        buildnumberCallback(saveErr);
+                      });
+                    })
+                    .catch((fileDataError) => buildnumberCallback(fileDataError));
                 });
               }).on('error', (loadErr) => {
                 buildnumberCallback(loadErr);
