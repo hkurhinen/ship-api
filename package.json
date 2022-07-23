@@ -31,7 +31,7 @@
     "command-line-args": "^5.1.1",
     "elasticsearch": "^16.7.1",
     "express": "^4.17.1",
-    "file-type": "^14.3.0",
+    "file-type": "^16.5.4",
     "mongoosastic": "^4.6.0",
     "mongoose": "^5.9.11",
     "mongoose-gridfs": "^1.2.40",
